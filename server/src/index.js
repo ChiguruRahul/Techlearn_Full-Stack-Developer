@@ -25,6 +25,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+app.get("/", (req, res) => res.send("TechLearn backend is running ✅"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 app.get("/api/courses", async (req, res) => {
@@ -80,3 +81,4 @@ app.get("/api/topics/:topicId", async (req, res) => {
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`✅ Backend running on port ${port}`));
+
