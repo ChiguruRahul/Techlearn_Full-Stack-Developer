@@ -109,8 +109,8 @@ export default function TopicsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // (for now) does nothing; you’ll tell me later
-  function onBackButtonClick() {}
+  // (for now) does nothing - you’ll tell later
+  function onSidebarBack() {}
 
   return (
     <div style={styles.page}>
@@ -122,17 +122,20 @@ export default function TopicsPage() {
       </header>
 
       <div style={styles.layout}>
-        {/* ✅ Sidebar without the big outer container box */}
-        <aside style={styles.sidebar}>
+        <aside style={styles.sidebarWrap}>
+          {/* ✅ This is the “outer box” we are removing:
+              Instead of rendering the old bordered card,
+              we render only a title row + topic buttons.
+          */}
           <div style={styles.sidebarHeaderRow}>
             <div style={styles.sidebarTitle}>Course Topics</div>
 
-            {/* ✅ replaces the old “5” badge */}
+            {/* ✅ Replace the “5” badge with < button */}
             <button
               type="button"
-              onClick={onBackButtonClick}
+              onClick={onSidebarBack}
               style={styles.sidebarBackBtn}
-              aria-label="Sidebar back"
+              aria-label="Back"
               title="Back"
             >
               &lt;
@@ -150,9 +153,7 @@ export default function TopicsPage() {
                   ...(active ? styles.topicBtnActive : {}),
                 }}
               >
-                {/* ✅ number with NO box */}
-                <span style={styles.topicOrder}>{t.order}</span>
-                <span style={styles.topicText}>{t.title}</span>
+                <span style={styles.topicOrder}>{t.order}.</span> {t.title}
               </button>
             );
           })}
@@ -212,43 +213,44 @@ const styles = {
 
   layout: {
     display: "grid",
-    gridTemplateColumns: "360px 1fr",
+    gridTemplateColumns: "320px 1fr",
     gap: 16,
     padding: 16,
     alignItems: "start",
     width: "100%",
   },
 
-  // ✅ no outer “card” look here anymore
-  sidebar: {
+  // ✅ outer sidebar “card” removed (no border, no background, no radius)
+  sidebarWrap: {
     position: "sticky",
     top: 12,
     height: "fit-content",
     padding: 0,
-    background: "transparent",
     border: "none",
+    background: "transparent",
+    borderRadius: 0,
   },
 
+  // ✅ header row for "Course Topics" + < button
   sidebarHeaderRow: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 12,
-    padding: "0 4px",
+    marginBottom: 10,
+    padding: "0 2px",
   },
-
   sidebarTitle: {
     fontWeight: 800,
-    fontSize: 20,
+    fontSize: 18,
   },
 
+  // ✅ same “pill/soft” vibe like your page, not a random new style
   sidebarBackBtn: {
     width: 36,
     height: 36,
     borderRadius: 999,
     border: "1px solid #dbeafe",
-    background: "#eef6ff",
+    background: "#eef5ff",
     cursor: "pointer",
     fontSize: 18,
     fontWeight: 800,
@@ -256,38 +258,27 @@ const styles = {
     textAlign: "center",
   },
 
-  // ✅ each topic remains a box
+  // ✅ keep your original topic button look (boxes)
   topicBtn: {
     width: "100%",
     textAlign: "left",
-    padding: "14px 14px",
-    borderRadius: 14,
+    padding: "10px 10px",
+    borderRadius: 8,
     border: "1px solid transparent",
-    background: "#f3f8ff",
+    background: "transparent",
     cursor: "pointer",
-    marginBottom: 10,
+    marginBottom: 6,
     color: "#111",
     fontSize: 14,
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
   },
 
   topicBtnActive: {
-    background: "#dbeafe",
-    border: "1px solid #93c5fd",
+    background: "#eef5ff",
+    border: "1px solid #cfe4ff",
+    color: "#111",
   },
 
-  // ✅ plain number, no box
-  topicOrder: {
-    minWidth: 18,
-    fontWeight: 800,
-    color: "#0f172a",
-  },
-
-  topicText: {
-    fontWeight: 600,
-  },
+  topicOrder: { color: "#666", marginRight: 6, fontWeight: 600 },
 
   main: {
     background: "white",
@@ -329,10 +320,7 @@ const styles = {
     fontWeight: 600,
   },
 
-  note: {
-    lineHeight: 1.6,
-  },
-
+  note: { lineHeight: 1.6 },
   noteH1: { margin: "10px 0", fontSize: 26 },
   noteH2: { margin: "10px 0", fontSize: 20 },
   noteH3: { margin: "10px 0", fontSize: 16 },
