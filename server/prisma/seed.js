@@ -324,4 +324,36 @@ Important:
 `,
     },
   ];
-}  
+
+  for (let i = 0; i < topicsData.length; i++) {
+    const item = topicsData[i];
+
+    const topic = await prisma.topic.create({
+      data: {
+        courseId: course.id,
+        title: item.title,
+        order: i + 1,
+      },
+    });
+
+    await prisma.note.create({
+      data: {
+        topicId: topic.id,
+        content: item.content,
+      },
+    });
+  }
+
+  console.log("✅ Seed complete!");
+  console.log("✅ Course ID:", course.id);
+}
+
+main()
+  .catch((e) => {
+    console.error("Seed error:", e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+    await pool.end();
+  });
