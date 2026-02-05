@@ -460,10 +460,34 @@ const styles = {
     color: "rgba(2,6,23,0.78)",
   },
 
-  noteH1: { margin: "16px 0 10px", fontSize: 28 },
-  noteH2: { margin: "16px 0 10px", fontSize: 22, color: "#1e3a8a" },
-  noteH3: { margin: "14px 0 8px", fontSize: 18, color: "#1e3a8a" },
-  noteP: { margin: "8px 0" },
-  noteLi: { margin: "6px 0" },
+  noteH1: {
+  margin: "10px 0 28px",
+  fontSize: 72,
+  fontWeight: 900,
+  color: "#1d4ed8",
+  letterSpacing: "-0.03em",
+  textAlign: "center",
+},
+
+noteH2: {
+  margin: "30px 0 10px",
+  fontSize: 26,
+  fontWeight: 800,
+  color: "#2563eb",
+},
+
+noteP: {
+  margin: "10px 0",
+  fontSize: 16,
+  lineHeight: 1.75,
+  color: "rgba(2,6,23,0.70)",
+},
+
+noteLi: {
+  margin: "8px 0",
+  fontSize: 16,
+  color: "rgba(2,6,23,0.70)",
+},
+
 };
 
