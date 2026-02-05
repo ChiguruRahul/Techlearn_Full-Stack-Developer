@@ -15,6 +15,9 @@ export default function TopicsPage() {
   const [activeTopic, setActiveTopic] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ NEW: sidebar collapse (like reference)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const topicFromQuery = useMemo(() => {
     const p = new URLSearchParams(location.search);
     return p.get("topic");
@@ -109,8 +112,7 @@ export default function TopicsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // (for now) does nothing - you’ll tell later
-  function onSidebarBack() {}
+  const sidebarWidth = sidebarCollapsed ? 78 : 340;
 
   return (
     <div style={styles.page}>
@@ -121,51 +123,80 @@ export default function TopicsPage() {
         </div>
       </header>
 
-      <div style={styles.layout}>
-        <aside style={styles.sidebarWrap}>
-          {/* ✅ This is the “outer box” we are removing:
-              Instead of rendering the old bordered card,
-              we render only a title row + topic buttons.
-          */}
+      <div
+        style={{
+          ...styles.layout,
+          gridTemplateColumns: `${sidebarWidth}px 1fr`,
+        }}
+      >
+        {/* ✅ Sidebar (NO outer box) */}
+        <aside style={{ ...styles.sidebar, width: sidebarWidth }}>
           <div style={styles.sidebarHeaderRow}>
-            <div style={styles.sidebarTitle}>Course Topics</div>
+            {!sidebarCollapsed && <div style={styles.sidebarTitle}>Course Topics</div>}
 
-            {/* ✅ Replace the “5” badge with < button */}
+            {/* ✅ Replace "5" badge with collapse button */}
             <button
               type="button"
-              onClick={onSidebarBack}
-              style={styles.sidebarBackBtn}
-              aria-label="Back"
-              title="Back"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={sidebarCollapsed ? "Expand" : "Collapse"}
+              style={styles.collapseBtn}
             >
-              &lt;
+              {sidebarCollapsed ? ">" : "<"}
             </button>
           </div>
 
-          {topics.map((t) => {
-            const active = t.id === activeTopicId;
-            return (
-              <button
-                key={t.id}
-                onClick={() => selectTopic(t.id)}
-                style={{
-                  ...styles.topicBtn,
-                  ...(active ? styles.topicBtnActive : {}),
-                }}
-              >
-                <span style={styles.topicOrder}>{t.order}.</span> {t.title}
-              </button>
-            );
-          })}
+          <div style={{ marginTop: sidebarCollapsed ? 10 : 12 }}>
+            {topics.map((t) => {
+              const active = t.id === activeTopicId;
+
+              // Collapsed: show only number pills
+              if (sidebarCollapsed) {
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => selectTopic(t.id)}
+                    title={`${t.order}. ${t.title}`}
+                    style={{
+                      ...styles.topicMiniBtn,
+                      ...(active ? styles.topicMiniBtnActive : {}),
+                    }}
+                  >
+                    {t.order}
+                  </button>
+                );
+              }
+
+              // Expanded: show topic pills with number (NO boxed number chip)
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => selectTopic(t.id)}
+                  style={{
+                    ...styles.topicBtn,
+                    ...(active ? styles.topicBtnActive : {}),
+                  }}
+                >
+                  <span style={styles.topicOrderPlain}>{t.order}</span>
+                  <span style={styles.topicTitleText}>{t.title}</span>
+                </button>
+              );
+            })}
+          </div>
         </aside>
 
+        {/* Main */}
         <main style={styles.main}>
           {loading && <div>Loading...</div>}
 
           {!loading && activeTopic && (
             <>
               <div style={styles.topicHeader}>
-                <h2 style={styles.h2}>{activeTopic.title}</h2>
+                <div>
+                  <div style={styles.topicKicker}>{activeTopic.title}</div>
+                  <h2 style={styles.h2}>{activeTopic.title}</h2>
+                </div>
+
                 <div style={styles.navBtns}>
                   <button onClick={goPrev} disabled={!canPrev} style={styles.navBtn}>
                     ← Previous
@@ -182,6 +213,8 @@ export default function TopicsPage() {
                     h1: (props) => <h1 style={styles.noteH1} {...props} />,
                     h2: (props) => <h2 style={styles.noteH2} {...props} />,
                     h3: (props) => <h3 style={styles.noteH3} {...props} />,
+                    p: (props) => <p style={styles.noteP} {...props} />,
+                    li: (props) => <li style={styles.noteLi} {...props} />,
                   }}
                 >
                   {activeTopic.note?.content || "No notes found."}
@@ -199,94 +232,120 @@ const styles = {
   page: {
     fontFamily: "system-ui, Arial",
     color: "#111",
-    background: "white",
     minHeight: "100vh",
+    background: "linear-gradient(180deg, #dff2ff 0%, #cfeeff 60%, #cfeeff 100%)",
   },
 
   header: {
-    background: "white",
-    borderBottom: "1px solid #e5e5e5",
-    padding: "16px 20px",
+    background: "transparent",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
+    padding: "18px 22px",
   },
-  breadcrumb: { fontSize: 12, color: "#666" },
-  h1: { margin: "6px 0 0", fontSize: 20 },
+  breadcrumb: { fontSize: 13, color: "rgba(0,0,0,0.55)" },
+  h1: { margin: "6px 0 0", fontSize: 28, fontWeight: 800 },
 
   layout: {
     display: "grid",
-    gridTemplateColumns: "320px 1fr",
-    gap: 16,
-    padding: 16,
+    gap: 26, // ✅ gives the “more to the right” spacing
+    padding: "18px 22px 32px",
     alignItems: "start",
     width: "100%",
   },
 
-  // ✅ outer sidebar “card” removed (no border, no background, no radius)
-  sidebarWrap: {
-    position: "sticky",
-    top: 12,
-    height: "fit-content",
-    padding: 0,
-    border: "none",
-    background: "transparent",
-    borderRadius: 0,
+  // ✅ Sidebar has NO outer box/card now
+  sidebar: {
+    paddingTop: 8,
   },
 
-  // ✅ header row for "Course Topics" + < button
   sidebarHeaderRow: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
-    padding: "0 2px",
-  },
-  sidebarTitle: {
-    fontWeight: 800,
-    fontSize: 18,
+    gap: 10,
+    paddingLeft: 2,
   },
 
-  // ✅ same “pill/soft” vibe like your page, not a random new style
-  sidebarBackBtn: {
-    width: 36,
-    height: 36,
+  sidebarTitle: {
+    fontSize: 26,
+    fontWeight: 800,
+    color: "#1e3a8a",
+    letterSpacing: "-0.02em",
+  },
+
+  // ✅ replaces the old “5 badge”
+  collapseBtn: {
+    width: 44,
+    height: 34,
     borderRadius: 999,
-    border: "1px solid #dbeafe",
-    background: "#eef5ff",
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "rgba(255,255,255,0.55)",
     cursor: "pointer",
     fontSize: 18,
     fontWeight: 800,
-    lineHeight: "34px",
-    textAlign: "center",
+    lineHeight: "32px",
   },
 
-  // ✅ keep your original topic button look (boxes)
+  // Expanded topic button (keep “pills”)
   topicBtn: {
     width: "100%",
     textAlign: "left",
-    padding: "10px 10px",
-    borderRadius: 8,
+    padding: "14px 14px",
+    borderRadius: 12,
     border: "1px solid transparent",
-    background: "transparent",
+    background: "rgba(255,255,255,0.35)",
     cursor: "pointer",
-    marginBottom: 6,
-    color: "#111",
-    fontSize: 14,
+    marginBottom: 12,
+    color: "#0f172a",
+    fontSize: 16,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
   },
-
   topicBtnActive: {
-    background: "#eef5ff",
-    border: "1px solid #cfe4ff",
-    color: "#111",
+    background: "rgba(59,130,246,0.18)",
+    border: "1px solid rgba(59,130,246,0.35)",
   },
 
-  topicOrder: { color: "#666", marginRight: 6, fontWeight: 600 },
+  // ✅ number is plain (no little box)
+  topicOrderPlain: {
+    minWidth: 22,
+    fontWeight: 800,
+    color: "#111827",
+  },
+  topicTitleText: {
+    fontWeight: 600,
+  },
 
+  // Collapsed mini number rail buttons
+  topicMiniBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 12,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "rgba(255,255,255,0.35)",
+    cursor: "pointer",
+    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: 800,
+    color: "#111827",
+    display: "grid",
+    placeItems: "center",
+  },
+  topicMiniBtnActive: {
+    background: "rgba(59,130,246,0.18)",
+    border: "1px solid rgba(59,130,246,0.35)",
+  },
+
+  // Main content card (keep as-is style vibe)
   main: {
-    background: "white",
-    border: "1px solid #e5e5e5",
-    borderRadius: 10,
-    padding: 16,
-    minHeight: 300,
+    background: "rgba(255,255,255,0.55)",
+    border: "1px solid rgba(255,255,255,0.45)",
+    borderRadius: 18,
+    padding: 22,
+    minHeight: 320,
     width: "100%",
+    boxShadow: "0 14px 40px rgba(2, 6, 23, 0.08)",
+    backdropFilter: "blur(12px)",
   },
 
   topicHeader: {
@@ -294,34 +353,50 @@ const styles = {
     gridTemplateColumns: "1fr auto",
     alignItems: "start",
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 14,
+  },
+
+  topicKicker: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "rgba(2,6,23,0.60)",
+    marginBottom: 6,
   },
 
   h2: {
     margin: 0,
-    fontSize: 18,
-    lineHeight: 1.3,
+    fontSize: 40,
+    lineHeight: 1.1,
+    letterSpacing: "-0.03em",
+    fontWeight: 900,
+    color: "#0b1b4a",
   },
 
   navBtns: {
     display: "flex",
-    gap: 8,
+    gap: 10,
     justifyContent: "flex-end",
     alignItems: "center",
     whiteSpace: "nowrap",
   },
 
   navBtn: {
-    padding: "8px 12px",
-    borderRadius: 8,
-    border: "1px solid #ddd",
-    background: "white",
+    padding: "10px 14px",
+    borderRadius: 999,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "rgba(255,255,255,0.65)",
     cursor: "pointer",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
-  note: { lineHeight: 1.6 },
-  noteH1: { margin: "10px 0", fontSize: 26 },
-  noteH2: { margin: "10px 0", fontSize: 20 },
-  noteH3: { margin: "10px 0", fontSize: 16 },
+  note: {
+    lineHeight: 1.7,
+    color: "rgba(2,6,23,0.78)",
+  },
+
+  noteH1: { margin: "16px 0 10px", fontSize: 28 },
+  noteH2: { margin: "16px 0 10px", fontSize: 22, color: "#1e3a8a" },
+  noteH3: { margin: "14px 0 8px", fontSize: 18, color: "#1e3a8a" },
+  noteP: { margin: "8px 0" },
+  noteLi: { margin: "6px 0" },
 };
