@@ -15,10 +15,10 @@ export default function TopicsPage() {
   const [activeTopic, setActiveTopic] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ NEW: sidebar collapse (like reference)
+  // ✅ sidebar collapse
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // ✅ NEW: hover state for topic pills
+  // ✅ hover effects
   const [hoverTopicId, setHoverTopicId] = useState(null);
 
   const topicFromQuery = useMemo(() => {
@@ -100,29 +100,28 @@ export default function TopicsPage() {
     if (!canPrev) return;
     const prev = topics[activeIndex - 1];
     setActiveTopicId(prev.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // only scroll content box
+    const el = document.getElementById("topicScrollArea");
+    if (el) el.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goNext() {
     if (!canNext) return;
     const next = topics[activeIndex + 1];
     setActiveTopicId(next.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const el = document.getElementById("topicScrollArea");
+    if (el) el.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function selectTopic(id) {
     setActiveTopicId(id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const el = document.getElementById("topicScrollArea");
+    if (el) el.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const SIDEBAR_OPEN = 340;
   const SIDEBAR_CLOSED = 78;
-
-  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_OPEN);
-
-  useEffect(() => {
-    setSidebarWidth(sidebarCollapsed ? SIDEBAR_CLOSED : SIDEBAR_OPEN);
-  }, [sidebarCollapsed]);
+  const sidebarWidth = sidebarCollapsed ? SIDEBAR_CLOSED : SIDEBAR_OPEN;
 
   return (
     <div style={styles.page}>
@@ -133,67 +132,68 @@ export default function TopicsPage() {
         </div>
       </header>
 
-      <div
-        style={{
-          ...styles.layout,
-          gridTemplateColumns: `${sidebarWidth}px 1fr`,
-          transition: "grid-template-columns 260ms ease",
-        }}
-      >
-        {/* ✅ Sidebar (NO outer box) */}
-        <aside style={{ ...styles.sidebar, width: sidebarWidth }}>
-          <div style={styles.sidebarHeaderRow}>
-            {!sidebarCollapsed && <div style={styles.sidebarTitle}>Course Topics</div>}
+      {/* ✅ page stays fixed, only inner content scrolls */}
+      <div style={styles.body}>
+        <div
+          style={{
+            ...styles.layout,
+            gridTemplateColumns: `${sidebarWidth}px 1fr`,
+          }}
+        >
+          {/* Sidebar */}
+          <aside
+            style={{
+              ...styles.sidebar,
+              width: sidebarWidth,
+            }}
+          >
+            <div style={styles.sidebarHeaderRow}>
+              {!sidebarCollapsed && <div style={styles.sidebarTitle}>Course Topics</div>}
 
-            {/* ✅ FIXED: proper collapse button (no t/active refs) + centered icon */}
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed((s) => !s)}
-              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              style={styles.collapseBtn}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{
-                  ...styles.collapseIcon,
-                  transform: sidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)",
-                }}
+              {/* ✅ collapse button (centered chevron) */}
+              <button
+                type="button"
+                aria-label="Collapse sidebar"
+                onClick={() => setSidebarCollapsed((v) => !v)}
+                style={styles.collapseBtn}
               >
-                <path d="m15 18-6-6 6-6" />
-              </svg>
-            </button>
-          </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    transform: sidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 260ms ease",
+                  }}
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+            </div>
 
-          {/* ✅ Smooth collapse: fade + slide list content while width collapses */}
-          <div style={styles.sidebarBody}>
-            <div
-              style={{
-                ...styles.sidebarInner,
-                ...(sidebarCollapsed ? styles.sidebarInnerCollapsed : {}),
-                marginTop: sidebarCollapsed ? 10 : 12,
-              }}
-            >
+            {/* ✅ sidebar list can scroll if topics are many */}
+            <div style={styles.sidebarList}>
               {topics.map((t) => {
                 const active = t.id === activeTopicId;
 
-                // Collapsed: show only number pills
                 if (sidebarCollapsed) {
                   return (
                     <button
                       key={t.id}
                       onClick={() => selectTopic(t.id)}
                       title={`${t.order}. ${t.title}`}
+                      onMouseEnter={() => setHoverTopicId(t.id)}
+                      onMouseLeave={() => setHoverTopicId(null)}
                       style={{
                         ...styles.topicMiniBtn,
                         ...(active ? styles.topicMiniBtnActive : {}),
+                        ...(hoverTopicId === t.id ? styles.topicMiniBtnHover : {}),
                       }}
                     >
                       {t.order}
@@ -201,7 +201,6 @@ export default function TopicsPage() {
                   );
                 }
 
-                // Expanded: show topic pills with number (NO boxed number chip)
                 return (
                   <button
                     key={t.id}
@@ -220,46 +219,59 @@ export default function TopicsPage() {
                 );
               })}
             </div>
-          </div>
-        </aside>
+          </aside>
 
-        {/* Main */}
-        <main style={styles.main}>
-          {loading && <div>Loading...</div>}
+          {/* Main */}
+          <main style={styles.main}>
+            {loading && <div>Loading...</div>}
 
-          {!loading && activeTopic && (
-            <>
-              <div style={styles.topicHeader}>
-                <div>
-                  <div style={styles.topicKicker}>{activeTopic.title}</div>
+            {!loading && activeTopic && (
+              <>
+                {/* optional: keep header visible while scrolling */}
+                <div style={styles.topicHeaderSticky}>
+                  <div style={styles.topicHeader}>
+                    <div>
+                      {/* ✅ match reference: small grey kicker */}
+                      <div style={styles.topicKicker}>Welcome &amp; Course Overview</div>
+                      <h2 style={styles.h2}>{activeTopic.title}</h2>
+                    </div>
+
+                    <div style={styles.navBtns}>
+                      <button onClick={goPrev} disabled={!canPrev} style={styles.navBtn}>
+                        ← Previous
+                      </button>
+                      <button onClick={goNext} disabled={!canNext} style={styles.navBtn}>
+                        Next →
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <div style={styles.navBtns}>
-                  <button onClick={goPrev} disabled={!canPrev} style={styles.navBtn}>
-                    ← Previous
-                  </button>
-                  <button onClick={goNext} disabled={!canNext} style={styles.navBtn}>
-                    Next →
-                  </button>
+                {/* ✅ ONLY this scrolls */}
+                <div id="topicScrollArea" style={styles.noteScroll}>
+                  <ReactMarkdown
+                    components={{
+                      h1: (props) => <h1 style={styles.noteH1} {...props} />,
+                      h2: (props) => <h2 style={styles.noteH2} {...props} />,
+                      h3: (props) => <h3 style={styles.noteH3} {...props} />,
+                      p: (props) => <p style={styles.noteP} {...props} />,
+                      li: (props) => <li style={styles.noteLi} {...props} />,
+                      pre: (props) => <pre style={styles.pre} {...props} />,
+                      code: ({ inline, ...props }) =>
+                        inline ? (
+                          <code style={styles.inlineCode} {...props} />
+                        ) : (
+                          <code style={styles.codeBlock} {...props} />
+                        ),
+                    }}
+                  >
+                    {activeTopic.note?.content || "No notes found."}
+                  </ReactMarkdown>
                 </div>
-              </div>
-
-              <div style={styles.note}>
-                <ReactMarkdown
-                  components={{
-                    h1: (props) => <h1 style={styles.noteH1} {...props} />,
-                    h2: (props) => <h2 style={styles.noteH2} {...props} />,
-                    h3: (props) => <h3 style={styles.noteH3} {...props} />,
-                    p: (props) => <p style={styles.noteP} {...props} />,
-                    li: (props) => <li style={styles.noteLi} {...props} />,
-                  }}
-                >
-                  {activeTopic.note?.content || "No notes found."}
-                </ReactMarkdown>
-              </div>
-            </>
-          )}
-        </main>
+              </>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
@@ -269,7 +281,8 @@ const styles = {
   page: {
     fontFamily: "system-ui, Arial",
     color: "#111",
-    minHeight: "100vh",
+    height: "100vh",
+    overflow: "hidden",
     background: "linear-gradient(180deg, #dff2ff 0%, #cfeeff 60%, #cfeeff 100%)",
   },
 
@@ -277,21 +290,30 @@ const styles = {
     background: "transparent",
     borderBottom: "1px solid rgba(0,0,0,0.06)",
     padding: "18px 22px",
+    flex: "0 0 auto",
   },
   breadcrumb: { fontSize: 13, color: "rgba(0,0,0,0.55)" },
   h1: { margin: "6px 0 0", fontSize: 28, fontWeight: 800 },
 
-  layout: {
-    display: "grid",
-    gap: 26, // ✅ gives the “more to the right” spacing
-    padding: "18px 22px 32px",
-    alignItems: "start",
-    width: "100%",
+  body: {
+    height: "calc(100vh - 76px)", // header height approx
+    overflow: "hidden",
   },
 
-  // ✅ Sidebar has NO outer box/card now
+  layout: {
+    display: "grid",
+    gap: 26,
+    padding: "18px 22px 32px",
+    alignItems: "stretch",
+    width: "100%",
+    height: "100%",
+    transition: "grid-template-columns 520ms cubic-bezier(0.22, 1, 0.36, 1)",
+  },
+
   sidebar: {
     paddingTop: 8,
+    height: "100%",
+    transition: "width 520ms cubic-bezier(0.22, 1, 0.36, 1)",
   },
 
   sidebarHeaderRow: {
@@ -300,6 +322,7 @@ const styles = {
     justifyContent: "space-between",
     gap: 10,
     paddingLeft: 2,
+    marginBottom: 12,
   },
 
   sidebarTitle: {
@@ -307,9 +330,11 @@ const styles = {
     fontWeight: 800,
     color: "#1e3a8a",
     letterSpacing: "-0.02em",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
 
-  // ✅ collapse button (centered icon + smooth icon rotate)
   collapseBtn: {
     width: 44,
     height: 34,
@@ -317,40 +342,20 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.10)",
     background: "rgba(255,255,255,0.55)",
     cursor: "pointer",
-    display: "grid",
-    placeItems: "center",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     lineHeight: 1,
-    transition: "transform 160ms ease, background 160ms ease",
-  },
-  collapseIcon: {
-    width: 20,
-    height: 20,
-    color: "#0a2a66",
-    transition: "transform 220ms ease",
+    padding: 0,
+    transition: "transform 160ms ease, box-shadow 160ms ease, background 160ms ease",
   },
 
-  // ✅ Smooth collapse wrapper
-  sidebarBody: {
-    overflow: "hidden",
-  },
-  sidebarInner: {
-    transition: "opacity 220ms ease, transform 260ms ease",
-    opacity: 1,
-    transform: "translateX(0px)",
-  },
-  sidebarInnerCollapsed: {
-    opacity: 0,
-    transform: "translateX(-10px)",
-    pointerEvents: "none",
+  sidebarList: {
+    height: "calc(100% - 56px)",
+    overflowY: "auto",
+    paddingRight: 6,
   },
 
-  topicBtnHover: {
-    transform: "translateY(-1px)",
-    boxShadow: "0 10px 24px rgba(2,6,23,0.10)",
-    background: "rgba(255,255,255,0.55)",
-  },
-
-  // Expanded topic button (keep “pills”)
   topicBtn: {
     width: "100%",
     textAlign: "left",
@@ -365,14 +370,18 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: 12,
-    transition: "transform 160ms ease, box-shadow 160ms ease, background 160ms ease",
+    transition: "transform 180ms ease, box-shadow 180ms ease, background 180ms ease",
   },
   topicBtnActive: {
     background: "rgba(59,130,246,0.18)",
     border: "1px solid rgba(59,130,246,0.35)",
   },
+  topicBtnHover: {
+    transform: "translateY(-1px)",
+    boxShadow: "0 10px 24px rgba(2,6,23,0.10)",
+    background: "rgba(255,255,255,0.55)",
+  },
 
-  // ✅ number is plain (no little box)
   topicOrderPlain: {
     minWidth: 22,
     fontWeight: 800,
@@ -380,9 +389,11 @@ const styles = {
   },
   topicTitleText: {
     fontWeight: 600,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
 
-  // Collapsed mini number rail buttons
   topicMiniBtn: {
     width: 52,
     height: 52,
@@ -396,22 +407,38 @@ const styles = {
     color: "#111827",
     display: "grid",
     placeItems: "center",
+    transition: "transform 180ms ease, box-shadow 180ms ease, background 180ms ease",
   },
   topicMiniBtnActive: {
     background: "rgba(59,130,246,0.18)",
     border: "1px solid rgba(59,130,246,0.35)",
   },
+  topicMiniBtnHover: {
+    transform: "translateY(-1px)",
+    boxShadow: "0 10px 24px rgba(2,6,23,0.10)",
+    background: "rgba(255,255,255,0.55)",
+  },
 
-  // Main content card (keep as-is style vibe)
   main: {
     background: "rgba(255,255,255,0.55)",
     border: "1px solid rgba(255,255,255,0.45)",
     borderRadius: 18,
-    padding: 22,
-    minHeight: 320,
+    padding: 0,
+    height: "100%",
     width: "100%",
     boxShadow: "0 14px 40px rgba(2, 6, 23, 0.08)",
     backdropFilter: "blur(12px)",
+    overflow: "hidden",
+  },
+
+  topicHeaderSticky: {
+    position: "sticky",
+    top: 0,
+    zIndex: 2,
+    background: "rgba(255,255,255,0.55)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
+    padding: 22,
   },
 
   topicHeader: {
@@ -419,20 +446,19 @@ const styles = {
     gridTemplateColumns: "1fr auto",
     alignItems: "start",
     gap: 12,
-    marginBottom: 14,
   },
 
   topicKicker: {
     fontSize: 14,
     fontWeight: 700,
-    color: "rgba(2,6,23,0.60)",
+    color: "rgba(2,6,23,0.55)",
     marginBottom: 6,
   },
 
   h2: {
     margin: 0,
-    fontSize: 40,
-    lineHeight: 1.1,
+    fontSize: 56, // closer to reference
+    lineHeight: 1.05,
     letterSpacing: "-0.03em",
     fontWeight: 900,
     color: "#0b1b4a",
@@ -455,39 +481,46 @@ const styles = {
     fontWeight: 700,
   },
 
-  note: {
+  noteScroll: {
+    padding: "18px 22px 26px",
+    height: "calc(100% - 130px)", // subtract sticky header space
+    overflowY: "auto",
     lineHeight: 1.7,
     color: "rgba(2,6,23,0.78)",
   },
 
-  noteH1: {
-  margin: "10px 0 28px",
-  fontSize: 72,
-  fontWeight: 900,
-  color: "#1d4ed8",
-  letterSpacing: "-0.03em",
-  textAlign: "center",
-},
+  noteH1: { margin: "16px 0 10px", fontSize: 28 },
+  noteH2: { margin: "18px 0 10px", fontSize: 22, color: "#1e3a8a" },
+  noteH3: { margin: "16px 0 8px", fontSize: 18, color: "#1e3a8a" },
+  noteP: { margin: "10px 0" },
+  noteLi: { margin: "8px 0" },
 
-noteH2: {
-  margin: "30px 0 10px",
-  fontSize: 26,
-  fontWeight: 800,
-  color: "#2563eb",
-},
-
-noteP: {
-  margin: "10px 0",
-  fontSize: 16,
-  lineHeight: 1.75,
-  color: "rgba(2,6,23,0.70)",
-},
-
-noteLi: {
-  margin: "8px 0",
-  fontSize: 16,
-  color: "rgba(2,6,23,0.70)",
-},
-
+  pre: {
+    margin: "14px 0",
+    padding: 0,
+    overflowX: "auto",
+    borderRadius: 12,
+  },
+  codeBlock: {
+    display: "block",
+    padding: "16px 18px",
+    borderRadius: 12,
+    background: "#0b1220",
+    color: "rgba(255,255,255,0.92)",
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    fontSize: 14,
+    lineHeight: 1.6,
+    boxShadow: "0 10px 24px rgba(2,6,23,0.18)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  },
+  inlineCode: {
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+    fontSize: "0.95em",
+    padding: "2px 6px",
+    borderRadius: 8,
+    background: "rgba(15,23,42,0.08)",
+    border: "1px solid rgba(15,23,42,0.10)",
+  },
 };
+
 
