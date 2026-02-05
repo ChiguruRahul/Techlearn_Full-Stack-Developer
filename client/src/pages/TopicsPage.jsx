@@ -18,6 +18,9 @@ export default function TopicsPage() {
   // ✅ NEW: sidebar collapse (like reference)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // ✅ NEW: hover state for topic pills
+  const [hoverTopicId, setHoverTopicId] = useState(null);
+
   const topicFromQuery = useMemo(() => {
     const p = new URLSearchParams(location.search);
     return p.get("topic");
@@ -112,7 +115,14 @@ export default function TopicsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const sidebarWidth = sidebarCollapsed ? 78 : 340;
+  const SIDEBAR_OPEN = 340;
+  const SIDEBAR_CLOSED = 78;
+
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_OPEN);
+
+  useEffect(() => {
+    setSidebarWidth(sidebarCollapsed ? SIDEBAR_CLOSED : SIDEBAR_OPEN);
+  }, [sidebarCollapsed]);
 
   return (
     <div style={styles.page}>
@@ -127,6 +137,7 @@ export default function TopicsPage() {
         style={{
           ...styles.layout,
           gridTemplateColumns: `${sidebarWidth}px 1fr`,
+          transition: "grid-template-columns 260ms ease",
         }}
       >
         {/* ✅ Sidebar (NO outer box) */}
@@ -134,54 +145,81 @@ export default function TopicsPage() {
           <div style={styles.sidebarHeaderRow}>
             {!sidebarCollapsed && <div style={styles.sidebarTitle}>Course Topics</div>}
 
-            {/* ✅ Replace "5" badge with collapse button */}
+            {/* ✅ FIXED: proper collapse button (no t/active refs) + centered icon */}
             <button
               type="button"
-              onClick={() => setSidebarCollapsed((v) => !v)}
+              onClick={() => setSidebarCollapsed((s) => !s)}
               aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              title={sidebarCollapsed ? "Expand" : "Collapse"}
               style={styles.collapseBtn}
             >
-              {sidebarCollapsed ? ">" : "<"}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  ...styles.collapseIcon,
+                  transform: sidebarCollapsed ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
             </button>
           </div>
 
-          <div style={{ marginTop: sidebarCollapsed ? 10 : 12 }}>
-            {topics.map((t) => {
-              const active = t.id === activeTopicId;
+          {/* ✅ Smooth collapse: fade + slide list content while width collapses */}
+          <div style={styles.sidebarBody}>
+            <div
+              style={{
+                ...styles.sidebarInner,
+                ...(sidebarCollapsed ? styles.sidebarInnerCollapsed : {}),
+                marginTop: sidebarCollapsed ? 10 : 12,
+              }}
+            >
+              {topics.map((t) => {
+                const active = t.id === activeTopicId;
 
-              // Collapsed: show only number pills
-              if (sidebarCollapsed) {
+                // Collapsed: show only number pills
+                if (sidebarCollapsed) {
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => selectTopic(t.id)}
+                      title={`${t.order}. ${t.title}`}
+                      style={{
+                        ...styles.topicMiniBtn,
+                        ...(active ? styles.topicMiniBtnActive : {}),
+                      }}
+                    >
+                      {t.order}
+                    </button>
+                  );
+                }
+
+                // Expanded: show topic pills with number (NO boxed number chip)
                 return (
                   <button
                     key={t.id}
                     onClick={() => selectTopic(t.id)}
-                    title={`${t.order}. ${t.title}`}
+                    onMouseEnter={() => setHoverTopicId(t.id)}
+                    onMouseLeave={() => setHoverTopicId(null)}
                     style={{
-                      ...styles.topicMiniBtn,
-                      ...(active ? styles.topicMiniBtnActive : {}),
+                      ...styles.topicBtn,
+                      ...(active ? styles.topicBtnActive : {}),
+                      ...(hoverTopicId === t.id ? styles.topicBtnHover : {}),
                     }}
                   >
-                    {t.order}
+                    <span style={styles.topicOrderPlain}>{t.order}</span>
+                    <span style={styles.topicTitleText}>{t.title}</span>
                   </button>
                 );
-              }
-
-              // Expanded: show topic pills with number (NO boxed number chip)
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => selectTopic(t.id)}
-                  style={{
-                    ...styles.topicBtn,
-                    ...(active ? styles.topicBtnActive : {}),
-                  }}
-                >
-                  <span style={styles.topicOrderPlain}>{t.order}</span>
-                  <span style={styles.topicTitleText}>{t.title}</span>
-                </button>
-              );
-            })}
+              })}
+            </div>
           </div>
         </aside>
 
@@ -272,7 +310,7 @@ const styles = {
     letterSpacing: "-0.02em",
   },
 
-  // ✅ replaces the old “5 badge”
+  // ✅ collapse button (centered icon + smooth icon rotate)
   collapseBtn: {
     width: 44,
     height: 34,
@@ -280,9 +318,37 @@ const styles = {
     border: "1px solid rgba(0,0,0,0.10)",
     background: "rgba(255,255,255,0.55)",
     cursor: "pointer",
-    fontSize: 18,
-    fontWeight: 800,
-    lineHeight: "32px",
+    display: "grid",
+    placeItems: "center",
+    lineHeight: 1,
+    transition: "transform 160ms ease, background 160ms ease",
+  },
+  collapseIcon: {
+    width: 20,
+    height: 20,
+    color: "#0a2a66",
+    transition: "transform 220ms ease",
+  },
+
+  // ✅ Smooth collapse wrapper
+  sidebarBody: {
+    overflow: "hidden",
+  },
+  sidebarInner: {
+    transition: "opacity 220ms ease, transform 260ms ease",
+    opacity: 1,
+    transform: "translateX(0px)",
+  },
+  sidebarInnerCollapsed: {
+    opacity: 0,
+    transform: "translateX(-10px)",
+    pointerEvents: "none",
+  },
+
+  topicBtnHover: {
+    transform: "translateY(-1px)",
+    boxShadow: "0 10px 24px rgba(2,6,23,0.10)",
+    background: "rgba(255,255,255,0.55)",
   },
 
   // Expanded topic button (keep “pills”)
@@ -300,6 +366,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: 12,
+    transition: "transform 160ms ease, box-shadow 160ms ease, background 160ms ease",
   },
   topicBtnActive: {
     background: "rgba(59,130,246,0.18)",
@@ -400,3 +467,4 @@ const styles = {
   noteP: { margin: "8px 0" },
   noteLi: { margin: "6px 0" },
 };
+
