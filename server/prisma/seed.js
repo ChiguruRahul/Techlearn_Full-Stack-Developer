@@ -1,3 +1,33 @@
+// seed.js
+//
+// What this does:
+// 1) Deletes ALL existing Courses/Topics/Notes (fresh demo data every time)
+// 2) Creates ONE course
+// 3) Creates topics + notes (Markdown content, including code blocks)
+//
+// IMPORTANT:
+// After running this seed, DO NOT open an old courseId URL.
+// Always open:  /learn/courses/demo/topics
+// because your old courseId gets deleted + replaced.
+//
+// Steps to run (follow exactly):
+// 1) Stop your backend server (Ctrl+C).
+// 2) Run seed:
+//      node seed.js
+//    (or if your package.json has it: npm run seed)
+// 3) Start backend again:
+//      npm run dev   (or node server.js / whatever you use)
+// 4) Open frontend page using DEMO route:
+//      http://localhost:5173/learn/courses/demo/topics
+//    (or your frontend host)
+//    This will automatically redirect to the NEW courseId created by seed.
+//
+// If you still see blank:
+// - Open browser DevTools > Network
+// - Check /api/courses returns the new course
+// - Then /api/courses/<newId>/topics returns topics
+//
+
 const { Pool } = require("pg");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("@prisma/client");
@@ -9,6 +39,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Clear existing data (safe for demo)
+  // NOTE: This deletes old courseId URLs (so use /demo/topics after seeding)
   await prisma.note.deleteMany();
   await prisma.topic.deleteMany();
   await prisma.course.deleteMany();
@@ -17,12 +48,13 @@ async function main() {
     data: { title: "Demo Course - Full Stack Topics" },
   });
 
-    const topicsData = [
+  const topicsData = [
     {
       title: "Introduction To Python",
-      content: `# Introduction To Python
-
-## History
+      // NOTE:
+      // - Do NOT put "# Introduction To Python" here because your UI already shows the title big.
+      // - Start with "## History" etc to match reference layout.
+      content: `## History
 Python is a high-level, interpreted, interactive, and object-oriented scripting language. It was developed by Guido van Rossum in the late 1980s and early 1990s at the National Research Institute for Mathematics and Computer Science in the Netherlands. Python is derived from several languages like C, C++, SmallTalk, Algol-68, and other scripting languages. It is general-purpose, versatile, concise, easy to read, and can be used in web development, software development, and scientific applications.
 
 ## Features
@@ -52,7 +84,9 @@ print('Hello World!')
 
 >>> import test
 # Output: Hello World!
+\`\`\`
 
+\`\`\`python
 # Example: test2.py
 print('Program started')
 x = 10
@@ -173,6 +207,13 @@ print(type(a))  # Output: <class 'complex'>
 \`\`\`
 
 ## 📘 Number Systems in Python: Binary, Octal, and Hexadecimal
+In computer science, numbers can be represented in different numeral systems, such as:
+
+- Binary (Base 2) – Uses only 0 and 1.
+- Octal (Base 8) – Uses digits from 0 to 7.
+- Decimal (Base 10) – Standard numeric system we use (uses digits 0–9).
+- Hexadecimal (Base 16) – Uses digits 0–9 and letters A–F (A=10, B=11, ..., F=15).
+
 Python natively supports these formats by using prefixes to indicate the base of a literal value.
 
 ### Binary Numbers in Python
@@ -259,13 +300,15 @@ print(dic)
 \`\`\`
 
 ## Boolean Type
+Boolean values are either True or False, often used in conditions.
+
 \`\`\`python
 num = 12
 print(num > 0)  # Output: True
 \`\`\`
 
 ## NoneType
-Represents the absence of a value.
+Represents the absence of a value. Often used as a function return type when nothing is returned.
 
 \`\`\`python
 x = None
@@ -346,6 +389,7 @@ Important:
 
   console.log("✅ Seed complete!");
   console.log("✅ Course ID:", course.id);
+  console.log("➡️ Open frontend at: /learn/courses/demo/topics");
 }
 
 main()
