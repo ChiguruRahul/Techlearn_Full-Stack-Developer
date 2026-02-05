@@ -19,7 +19,7 @@ async function main() {
 
   const topicsData = [
     {
-      title: "Welcome & Course Overview",
+      title: "Introduction To Python",
       content: `# Welcome 👋
 
 This is a demo clone of a Course Topics page.
