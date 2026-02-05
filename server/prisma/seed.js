@@ -17,7 +17,7 @@ async function main() {
     data: { title: "Demo Course - Full Stack Topics" },
   });
 
-  const topicsData = [
+  const topicsData = [  
     {
       title: "Introduction To Python",
       content: `## History
@@ -854,27 +854,519 @@ Identity operators compare memory location of objects.
 `,
     },
 
+    // =========================
+    // TOPIC 4
+    // =========================
     {
-      title: "Prisma + Postgres",
-      content: `# Prisma + Postgres
+      title: "Control Statements",
+      content: `## Control Statements in Python
+Control statements allow Python programs to make decisions, repeat actions, or jump out of loops.
 
-We store:
-- Courses
-- Topics
-- Notes
+Python supports three broad categories:
+- **Decision-Making Statements**
+- **Looping Statements**
+- **Jump Statements**
+
+---
+
+## Decision Making Statements
+
+### a) if Statement
+Executes a block if condition is **True**.
+
+\`\`\`python
+age = 20
+if age >= 18:
+    print("You are eligible to vote.")
+\`\`\`
+
+### b) if...else Statement
+Chooses between two blocks.
+
+\`\`\`python
+age = 16
+if age >= 18:
+    print("Eligible to vote")
+else:
+    print("Not eligible to vote")
+\`\`\`
+
+### c) if...elif...else Ladder
+Used when multiple conditions need to be checked.
+
+\`\`\`python
+score = 85
+if score >= 90:
+    print("Grade A")
+elif score >= 75:
+    print("Grade B")
+elif score >= 60:
+    print("Grade C")
+else:
+    print("Fail")
+\`\`\`
+
+### d) Nested if Statements
+\`\`\`python
+username = "admin"
+password = "admin123"
+
+if username == "admin":
+    if password == "admin123":
+        print("Login successful")
+    else:
+        print("Incorrect password")
+else:
+    print("Unknown user")
+\`\`\`
+
+### e) Dictionary as switch Replacement
+Python has no built-in switch, but dictionary mapping can simulate it.
+
+\`\`\`python
+def menu(option):
+    return {
+        1: "Start",
+        2: "Settings",
+        3: "Exit"
+    }.get(option, "Invalid choice")
+
+print(menu(1))
+\`\`\`
+
+---
+
+## Looping Statements
+
+### a) while Loop
+\`\`\`python
+i = 1
+while i <= 5:
+    print(i)
+    i += 1
+\`\`\`
+
+### b) for Loop with range()
+\`\`\`python
+for i in range(1, 6):
+    print(i)
+\`\`\`
+
+### c) for Loop with Collections
+\`\`\`python
+colors = ["red", "blue", "green"]
+for color in colors:
+    print(color)
+\`\`\`
+
+### d) Nested Loops
+\`\`\`python
+for i in range(3):
+    for j in range(2):
+        print(f"i={i}, j={j}")
+\`\`\`
+
+---
+
+## Jump Statements
+
+### a) break
+\`\`\`python
+for i in range(10):
+    if i == 5:
+        break
+    print(i)
+\`\`\`
+
+### b) continue
+\`\`\`python
+for i in range(5):
+    if i == 2:
+        continue
+    print(i)
+\`\`\`
+
+### c) pass
+\`\`\`python
+if True:
+    pass
+\`\`\`
+
+---
+
+## Practice Programs
+
+### 1) User Login System
+\`\`\`python
+stored_username = 'techlearn'
+stored_password = 'tls@2014'
+
+username = input("Enter your username: ").strip()
+password = input("Enter your password: ").strip()
+
+if username == "" or password == "":
+    print("Enter the username/password.")
+elif username == stored_username and password == stored_password:
+    print("Hello! Techlearn")
+else:
+    print("Invalid Username/Password")
+\`\`\`
+
+### 2) Password Change System
+\`\`\`python
+actual_password = "tls@2014"
+old_password = input("Enter old password: ").strip()
+
+if old_password != actual_password:
+    print("Wrong Password")
+else:
+    new_password = input("Enter new password: ").strip()
+    confirm_password = input("Re-enter new password: ").strip()
+    if new_password != confirm_password:
+        print("New Passwords do not match")
+    else:
+        actual_password = new_password
+        print("Password updated successfully!")
+\`\`\`
+
+### 3) Bank Account Debit Simulation
+\`\`\`python
+account_no = 12345
+balance = 12000
+
+debit_amount = int(input("Enter amount to withdraw: "))
+
+if debit_amount > 20000:
+    print("Daily limit exceeded")
+elif debit_amount % 100 != 0:
+    print("Enter only multiple’s of 100’s")
+elif debit_amount > balance:
+    print("Insufficient Balance")
+else:
+    balance -= debit_amount
+    print(f"Transaction successful. New balance: ₹{balance}")
+\`\`\`
+
+### 4) Strong Password Validator
+\`\`\`python
+import string
+
+old_password = "tls@2014"
+new_password = input("Enter new password: ")
+
+if len(new_password) < 9:
+    print("Password too short. Minimum 9 characters required.")
+elif new_password == old_password:
+    print("New password must be different from the old password.")
+elif " " in new_password:
+    print("Password must not contain spaces.")
+elif not any(c.islower() for c in new_password):
+    print("Password must include a lowercase letter.")
+elif not any(c.isupper() for c in new_password):
+    print("Password must include an uppercase letter.")
+elif not any(c.isdigit() for c in new_password):
+    print("Password must include a digit.")
+elif not any(c in string.punctuation for c in new_password):
+    print("Password must include a special character.")
+else:
+    print("Strong password!")
+\`\`\`
+
+### 5) Swiggy/Zomato Offer Calculator
+\`\`\`python
+total = float(input("Enter order total: ₹"))
+
+delivery_fee = 40
+platform_charge = 0.05 * total
+
+if total >= 500:
+    discount = 0.20 * total
+elif total >= 300:
+    discount = 0.10 * total
+else:
+    discount = 0.0
+
+final_amount = total + platform_charge + delivery_fee - discount
+
+print(f"Subtotal: ₹{total}")
+print(f"Platform charges: ₹{platform_charge:.2f}")
+print(f"Delivery fee: ₹{delivery_fee}")
+print(f"Discount applied: ₹{discount:.2f}")
+print(f"Final amount to pay: ₹{final_amount:.2f}")
+\`\`\`
 `,
     },
+
+    // =========================
+    // TOPIC 5
+    // =========================
     {
-      title: "Deployment Notes",
-      content: `# Deployment
+      title: "Data Types and Methods",
+      content: `## Python Notes – Data Types and Methods
 
-- Frontend: Vercel
-- Backend: Render
-- Database: Neon
+Python provides several built-in data types:
+- Numeric Types
+- Sequence Types
+- Mapping Types
+- Set Types
+- Boolean Type
+- Binary Types
+- None Type
 
-Important:
-- Use env vars
-- No hardcoded API URLs
+---
+
+## Numeric Types
+
+### int
+\`\`\`python
+x = 100
+print(type(x))
+
+x = 5
+print(x.numerator)
+print(x.denominator)
+\`\`\`
+
+### float
+\`\`\`python
+y = 7.25
+print(type(y))
+\`\`\`
+
+### complex
+\`\`\`python
+z = 2 + 3j
+print(z.real)
+print(z.imag)
+\`\`\`
+
+---
+
+## Sequence Types
+
+### str (String)
+Strings are immutable and index-based.
+
+\`\`\`python
+s = "Hello, World!"
+print(s[0])
+print(len(s))
+
+print(s.lower())
+print(s.upper())
+print(s.replace('World', 'Python'))
+print(s.find('World'))
+print(s.split(','))
+\`\`\`
+
+### list
+Lists are ordered and mutable.
+
+\`\`\`python
+lst = [1, 2, 3, "Python"]
+lst.append(4)
+lst[0] = 100
+print(lst)
+\`\`\`
+
+### tuple
+Tuples are ordered and immutable.
+
+\`\`\`python
+t = (1, 2, 3)
+print(t[1])
+\`\`\`
+
+---
+
+## Mapping Type: dict
+
+\`\`\`python
+d = {'name': 'Alice', 'age': 25}
+print(d['name'])
+
+print(d.keys())
+print(d.values())
+print(d.items())
+print(d.get('age'))
+d.update({'city': 'Hyderabad'})
+print(d)
+print(d.pop('age'))
+\`\`\`
+
+---
+
+## Set Types
+
+### set
+\`\`\`python
+s = {1, 2, 3, 3}
+print(s)
+
+s.add(4)
+s.remove(2)
+
+print(s.union({5, 6}))
+print(s.intersection({1, 3, 5}))
+print(s.difference({3}))
+\`\`\`
+
+### frozenset
+\`\`\`python
+fs = frozenset([1, 2, 3])
+print(fs)
+\`\`\`
+
+---
+
+## Boolean Type
+\`\`\`python
+x = True
+y = False
+print(type(x))
+print(x and y)
+print(x or y)
+print(not x)
+\`\`\`
+
+---
+
+## Binary Types
+
+### bytes
+\`\`\`python
+b = b'hello'
+print(b)
+\`\`\`
+
+### bytearray
+\`\`\`python
+ba = bytearray([65, 66, 67])
+ba[0] = 68
+print(ba)
+\`\`\`
+
+### memoryview
+\`\`\`python
+data = bytearray(b"hello")
+mv = memoryview(data)
+print(mv[0])
+\`\`\`
+
+---
+
+## None Type
+\`\`\`python
+x = None
+print(type(x))
+\`\`\`
+
+---
+
+## Type Conversion
+\`\`\`python
+a = 5.6
+print(int(a))      # 5
+
+a = 5
+print(float(a))    # 5.0
+
+a = 5
+print(complex(a))  # (5+0j)
+\`\`\`
+
+---
+
+## String Slicing and Operators
+\`\`\`python
+s1 = 'TECHLEARN'
+print(s1[:4])      # TECH
+print(s1[-5:])     # LEARN
+
+print('TECH' + 'LEARN')
+print('TECH' * 3)
+
+name = 'TechLearn'
+mobile = 9676663136
+print(f"Name is: {name} and Mobile is: {mobile}")
+\`\`\`
+
+---
+
+## Common String Methods
+| Method | Purpose |
+|---|---|
+| capitalize() | First letter uppercase |
+| count(x) | Count substring |
+| find(x) | Index or -1 |
+| split(sep) | Split to list |
+| index(x) | Like find() but error if missing |
+| upper() | Uppercase |
+| lower() | Lowercase |
+| islower() | Check lowercase |
+| isupper() | Check uppercase |
+| isnumeric() | Check numeric |
+
+Example:
+\`\`\`python
+names = "vnr-cmr-uoh-mahindra-cbit"
+for name in names.split('-'):
+    print(name.capitalize())
+\`\`\`
+
+---
+
+## Common List Methods
+| Method | Purpose |
+|---|---|
+| append(x) | Add to end |
+| insert(i,x) | Insert at index |
+| extend(list2) | Add multiple |
+| remove(x) | Remove first match |
+| pop() | Remove last |
+| pop(i) | Remove index |
+| clear() | Empty list |
+| sort() | Sort ascending |
+| reverse() | Reverse order |
+| index(x) | Find index |
+| count(x) | Count |
+| copy() | Shallow copy |
+
+---
+
+## Tuple Basics
+Tuples are immutable.
+
+\`\`\`python
+t = (10, 15, 20, 25)
+z = (x for x in t if x <= 20)
+for val in z:
+    print(val, end=' ')
+\`\`\`
+
+Tuple methods:
+- \`index(x)\`
+- \`count(x)\`
+
+---
+
+## Set Summary
+Set is unordered, unique values, no indexing.
+
+Common operations:
+- add(), update()
+- union(|), intersection(&)
+- difference(-), symmetric_difference(^)
+- remove(), discard(), pop()
+- issubset(<=), issuperset(>=), isdisjoint()
+
+---
+
+## Dictionary Methods (Quick)
+- update(), setdefault()
+- pop(), popitem()
+- copy(), clear()
+- get(), keys(), values(), items()
 `,
     },
   ];
