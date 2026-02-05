@@ -1,33 +1,3 @@
-// seed.js
-//
-// What this does:
-// 1) Deletes ALL existing Courses/Topics/Notes (fresh demo data every time)
-// 2) Creates ONE course
-// 3) Creates topics + notes (Markdown content, including code blocks)
-//
-// IMPORTANT:
-// After running this seed, DO NOT open an old courseId URL.
-// Always open:  /learn/courses/demo/topics
-// because your old courseId gets deleted + replaced.
-//
-// Steps to run (follow exactly):
-// 1) Stop your backend server (Ctrl+C).
-// 2) Run seed:
-//      node seed.js
-//    (or if your package.json has it: npm run seed)
-// 3) Start backend again:
-//      npm run dev   (or node server.js / whatever you use)
-// 4) Open frontend page using DEMO route:
-//      http://localhost:5173/learn/courses/demo/topics
-//    (or your frontend host)
-//    This will automatically redirect to the NEW courseId created by seed.
-//
-// If you still see blank:
-// - Open browser DevTools > Network
-// - Check /api/courses returns the new course
-// - Then /api/courses/<newId>/topics returns topics
-//
-
 const { Pool } = require("pg");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { PrismaClient } = require("@prisma/client");
@@ -39,7 +9,6 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Clear existing data (safe for demo)
-  // NOTE: This deletes old courseId URLs (so use /demo/topics after seeding)
   await prisma.note.deleteMany();
   await prisma.topic.deleteMany();
   await prisma.course.deleteMany();
@@ -51,9 +20,6 @@ async function main() {
   const topicsData = [
     {
       title: "Introduction To Python",
-      // NOTE:
-      // - Do NOT put "# Introduction To Python" here because your UI already shows the title big.
-      // - Start with "## History" etc to match reference layout.
       content: `## History
 Python is a high-level, interpreted, interactive, and object-oriented scripting language. It was developed by Guido van Rossum in the late 1980s and early 1990s at the National Research Institute for Mathematics and Computer Science in the Netherlands. Python is derived from several languages like C, C++, SmallTalk, Algol-68, and other scripting languages. It is general-purpose, versatile, concise, easy to read, and can be used in web development, software development, and scientific applications.
 
@@ -84,9 +50,7 @@ print('Hello World!')
 
 >>> import test
 # Output: Hello World!
-\`\`\`
 
-\`\`\`python
 # Example: test2.py
 print('Program started')
 x = 10
@@ -207,13 +171,6 @@ print(type(a))  # Output: <class 'complex'>
 \`\`\`
 
 ## 📘 Number Systems in Python: Binary, Octal, and Hexadecimal
-In computer science, numbers can be represented in different numeral systems, such as:
-
-- Binary (Base 2) – Uses only 0 and 1.
-- Octal (Base 8) – Uses digits from 0 to 7.
-- Decimal (Base 10) – Standard numeric system we use (uses digits 0–9).
-- Hexadecimal (Base 16) – Uses digits 0–9 and letters A–F (A=10, B=11, ..., F=15).
-
 Python natively supports these formats by using prefixes to indicate the base of a literal value.
 
 ### Binary Numbers in Python
@@ -300,15 +257,13 @@ print(dic)
 \`\`\`
 
 ## Boolean Type
-Boolean values are either True or False, often used in conditions.
-
 \`\`\`python
 num = 12
 print(num > 0)  # Output: True
 \`\`\`
 
 ## NoneType
-Represents the absence of a value. Often used as a function return type when nothing is returned.
+Represents the absence of a value.
 
 \`\`\`python
 x = None
@@ -316,33 +271,589 @@ print(type(x))  # Output: <class 'NoneType'>
 \`\`\`
 `,
     },
+
+    // =========================
+    // TOPIC 2 (Column 2)
+    // =========================
     {
-      title: "React Basics",
-      content: `# React Basics
+      title: "General Functions",
+      content: `## print() Function
+The \`print()\` function is one of the most commonly used built-in functions in Python. It is used to display data on the standard output device (i.e., the console or terminal). Whether you're debugging your code or presenting output to a user, \`print()\` is the go-to function.
 
-## Key ideas
-- Components
-- Props & state
-- Routing with react-router-dom
+### a) Printing Different Data Types
+The \`print()\` function can be used to display values of all fundamental Python data types:
 
-\`\`\`js
-function Hello({ name }) {
-  return <div>Hello {name}</div>;
-}
+\`\`\`python
+print('Hello')                           # String (str) type
+print(100)                               # Integer (int) type
+print(3.14)                              # Floating-point (float) type
+print([1, 2, 3, 4])                      # List (list) type
+print((5, 6, 7))                         # Tuple (tuple) type
+print({1, 2, 3, 10, 4})                  # Set (set) type
+print({1: 'One', 2: 'Two', 3: 'Three'})  # Dictionary (dict) type
+print(True)                              # Boolean (bool) type
+print(3 + 4j)                            # Complex number (complex) type
+print(None)                              # NoneType (None) – represents the absence of value
 \`\`\`
+
+### b) Printing Variables
+Python allows you to store data in variables and later print them.
+
+\`\`\`python
+name = 'Techlearn Solutions'
+mobile = 9000663666
+email = 'techlearnsolutions@gmail.com'
+print(name)
+print(mobile)
+print(email)
+\`\`\`
+
+Output:
+\`\`\`
+Techlearn Solutions
+9000663666
+techlearnsolutions@gmail.com
+\`\`\`
+
+### c) Printing Multiple Values Together
+\`\`\`python
+print(1, 2, 3, 4)
+print('TechLearn', 9676663136, 'AS Rao Nagar')
+\`\`\`
+
+Output:
+\`\`\`
+1 2 3 4
+TechLearn 9676663136 AS Rao Nagar
+\`\`\`
+
+### d) Ways to Print Strings Along With Values
+
+#### 1) Using Commas
+\`\`\`python
+name = 'Techlearn Solutions'
+mobile = 9000663666
+print('Name :', name)
+print('Mobile:', mobile)
+\`\`\`
+
+Output:
+\`\`\`
+Name : Techlearn Solutions
+Mobile: 9000663666
+\`\`\`
+
+#### 2) Using String Concatenation (+)
+\`\`\`python
+name = 'Techlearn Solutions'
+print('Name : ' + name)
+\`\`\`
+
+> Note: You can only concatenate strings with strings. Convert numbers using \`str()\` when needed.
+
+---
+
+## e) Type Conversion / Type Casting
+
+### str() Function
+\`\`\`python
+print(str(5))          # Output: '5'
+print(str(5.6))        # Output: '5.6'
+\`\`\`
+
+### int() Function
+\`\`\`python
+a = int('56')
+b = int('60')
+c = a + b
+print(c)               # Output: 116
+\`\`\`
+
+> ⚠️ \`int('12.5')\` raises ValueError.
+
+### float() Function
+\`\`\`python
+a = 5
+b = float(a)
+print(b)               # Output: 5.0
+
+c = '12.3'
+d = float(c)
+print(d)               # Output: 12.3
+\`\`\`
+
+### list() Function
+\`\`\`python
+x = '[1,2,3]'         # string, not list
+aList = list(x)       # each character becomes an element
+
+y = 'TECH'
+bList = list(y)       # ['T','E','C','H']
+
+print(type(x))        # <class 'str'>
+print(type(aList))    # <class 'list'>
+print(type(bList))    # <class 'list'>
+\`\`\`
+
+### tuple() Function
+\`\`\`python
+x = '(1,2,3)'         # string
+aTuple = tuple(x)
+
+y = 'TECH'
+bTuple = tuple(y)
+
+print(type(x))        # <class 'str'>
+print(type(aTuple))   # <class 'tuple'>
+print(type(bTuple))   # <class 'tuple'>
+\`\`\`
+
+---
+
+## f) Real-Life Example Using Type Conversion
+\`\`\`python
+gold_rate = 6605
+print('Gold rate today in Hyderabad is: ' + str(gold_rate))
+\`\`\`
+
+---
+
+## g) Using Format Specifiers
+\`\`\`python
+length = 5
+breadth = 3
+area = length * breadth
+print('Length = %d' % length)
+print('Breadth = %d' % breadth)
+print('Area = %d' % area)
+\`\`\`
+
+\`\`\`python
+name = 'India'
+capital = 'Delhi'
+population = 1449297353
+print("Country: %s Capital: %s Population: %d" % (name, capital, population))
+\`\`\`
+
+---
+
+## h) Using f-Strings
+\`\`\`python
+x = 5
+y = 3
+print(f'value of x={x} and value of y={y}')
+\`\`\`
+
+Output:
+\`\`\`
+value of x=5 and value of y=3
+\`\`\`
+
+---
+
+## type() Function
+\`\`\`python
+a = 5
+print(type(a))          # <class 'int'>
+print(type('Techlearn'))# <class 'str'>
+\`\`\`
+
+---
+
+## input() Function
+The \`input()\` function always returns input as a string.
+
+\`\`\`python
+a = input('Enter a value: ')
+print(type(a))  # <class 'str'>
+\`\`\`
+
+Example with Type Casting:
+\`\`\`python
+x = input('Enter x value: ')
+y = input('Enter y value: ')
+z = input('Enter list of 3 values: ')
+
+num1 = int(x)
+num2 = float(y)
+num3 = list(z)
+
+print(type(x))
+print(type(num1))
+print(type(y))
+print(type(num2))
+print(type(z))
+print(type(num3))
+
+print(x + y)
+print(z)
+\`\`\`
+
+---
+
+## id() Function
+\`\`\`python
+a = 5
+b = 5
+print(id(a), id(b))
+
+a = [1, 2, 3]
+b = [1, 2, 3]
+print(id(a), id(b))
+\`\`\`
+
+---
+
+## sum() Function
+\`\`\`python
+a = [1, 2, 3]
+b = [1.2, 2.2, 3.2]
+c = [3 + 4j, 5 + 2j, 6 + 3j]
+d = [5, 3.5, 2 + 3j]
+
+print(sum(a))
+print(sum(b))
+print(sum(c))
+print(sum(d))
+\`\`\`
+
+---
+
+## max() Function
+\`\`\`python
+print(max(1, 10, 3, 5))
+x = [1, 12, 3]
+print(max(x))
+y = 'LEARN'
+print(max(y))
+\`\`\`
+
+---
+
+## min() Function
+\`\`\`python
+print(min(1, 10, 3, 5))
+x = [1, 12, 3]
+print(min(x))
+\`\`\`
+
+---
+
+## round() Function
+\`\`\`python
+print(round(567.589))
+print(round(567.539, 2))
+print(round(567.582))
+print(round(567.582, -1))
+print(round(4567.582, -2))
+print(round(4537.582, -2))
+print(round(4567.582, -3))
+\`\`\`
+
+---
+
+## len() Function
+\`\`\`python
+x = [11, 52, 30, 24, 15]
+print(len(x))
+\`\`\`
+
+---
+
+## Bonus: math Module
+\`\`\`python
+import math
+print(math.e)
+print(math.pi)
+print(math.sqrt(625))
+print(math.factorial(5))
+\`\`\`
+
+---
+
+## abs() Function
+\`\`\`python
+n = -45
+print(abs(n))
+\`\`\`
+
+---
+
+## any() Function
+\`\`\`python
+lights1 = [0, 0, 0, 0, 0, 0]
+lights2 = [0, 0, 0, 1, 0, 0]
+print(any(lights1))
+print(any(lights2))
+\`\`\`
+
+---
+
+## all() Function
+\`\`\`python
+std = [45, 98, 76, 88, 65, 90]
+print(all(std))
+
+std2 = [56, 90, 89, 19, 0, 80]
+print(all(std2))
+\`\`\`
+
+---
+
+## dir() Function
+\`\`\`python
+name = 'tech'
+mobile = 987666
+print(dir())
+\`\`\`
+
+---
+
+## divmod()
+\`\`\`python
+a = 5
+b = 2
+c = divmod(a, b)
+print(c)
+\`\`\`
+
+---
+
+## iter() + next()
+\`\`\`python
+x = [10, 20, 30, 40]
+i = iter(x)
+print(next(i))
+print(next(i))
+\`\`\`
+
+---
+
+## range()
+\`\`\`python
+print('Value in range of 5 using for each loop:')
+for val in range(5):
+    print(val, end=' ')
+\`\`\`
+
+\`\`\`python
+r2 = range(5)
+itr = iter(r2)
+print('Values using iter():')
+print(next(itr), end=' ')
+print(next(itr), end=' ')
+print(next(itr), end=' ')
+print(next(itr), end=' ')
+print(next(itr), end=' ')
+\`\`\`
+
+---
+
+## chr()
+\`\`\`python
+print(chr(65))
+print(chr(63))
+print(chr(93))
+print(chr(61))
+print(chr(48))
+\`\`\`
+
+---
+
+## ord()
+\`\`\`python
+print(ord('a'), end=' ')
+print(ord(';'), end=' ')
+print(ord('+'), end=' ')
+print(ord('9'), end=' ')
+print(ord('Z'), end=' ')
+\`\`\`
+
+---
+
+## zip()
+\`\`\`python
+state = ('Telangana', 'Tamilnadu', 'Karnataka')
+capital = ('Hyderabad', 'Chennai', 'Bengaluru')
+state_capital = zip(state, capital)
+
+print(state_capital)
+print(type(state_capital))
+
+for val in state_capital:
+    print(val)
+\`\`\`
+
+---
+
+## Summary
+- \`type()\` returns the data type.
+- \`input()\` takes input as string.
+- \`id()\` returns memory address.
+- \`sum()\` adds numeric elements.
+- \`max()/min()\` finds highest/lowest values.
+- \`round()\` rounds numbers.
+- \`len()\` counts elements.
+- \`abs()\` absolute value.
+- \`any()/all()\` check truthiness in collections.
+- \`dir()\` lists attributes/methods.
+- \`divmod()\` gives quotient + remainder.
+- \`iter()+next()\` iterates manually.
+- \`range()\` generates number sequences.
+- \`chr()/ord()\` ASCII/Unicode conversion.
+- \`zip()\` pairs items from iterables.
 `,
     },
-    {
-      title: "Express Basics",
-      content: `# Express Basics
 
-\`\`\`js
-app.get("/health", (req, res) => {
-  res.json({ ok: true });
-});
+    // =========================
+    // TOPIC 3 (Column 3)
+    // =========================
+    {
+      title: "Operators",
+      content: `## Operators in Python
+### Introduction to Operators
+In Python, operators are special symbols or keywords used to perform operations on variables and values. These operations can include arithmetic calculations, comparisons, logical evaluations, and more.
+
+### Types of Operators in Python
+Python provides the following categories of operators:
+- Arithmetic Operators
+- Comparison (Relational) Operators
+- Assignment Operators
+- Logical Operators
+- Bitwise Operators
+- Membership Operators
+- Identity Operators
+
+---
+
+## Arithmetic Operators
+Assume:
+\`\`\`python
+a = 10
+b = 20
 \`\`\`
+
+| Operator | Description | Example | Result |
+|---|---|---:|---:|
+| + | Addition | a + b | 30 |
+| - | Subtraction | a - b | -10 |
+| * | Multiplication | a * b | 200 |
+| / | Division (float) | a / b | 0.5 |
+| // | Floor Division | a // b | 0 |
+| % | Modulus (Remainder) | a % b | 10 |
+| ** | Exponentiation | a ** 2 | 100 |
+
+---
+
+## Comparison (Relational) Operators
+
+| Operator | Description | Example | Result |
+|---|---|---:|---:|
+| == | Equal to | a == b | False |
+| != | Not equal to | a != b | True |
+| > | Greater than | a > b | False |
+| < | Less than | a < b | True |
+| >= | Greater than or equal to | a >= b | False |
+| <= | Less than or equal to | a <= b | True |
+
+\`\`\`python
+print(a == b) # False
+print(a < b)  # True
+\`\`\`
+
+---
+
+## Assignment Operators
+
+| Operator | Description | Example | Equivalent To |
+|---|---|---:|---|
+| = | Assign | a = 10 | a = 10 |
+| += | Add and assign | a += b | a = a + b |
+| -= | Subtract and assign | a -= b | a = a - b |
+| *= | Multiply and assign | a *= b | a = a * b |
+| /= | Divide and assign | a /= b | a = a / b |
+| //= | Floor divide and assign | a //= b | a = a // b |
+| %= | Modulus and assign | a %= b | a = a % b |
+| **= | Exponent and assign | a **= 2 | a = a ** 2 |
+
+---
+
+## Logical Operators
+
+| Operator | Description | Example | Result |
+|---|---|---:|---:|
+| and | Logical AND | a > 5 and b < 30 | True |
+| or | Logical OR | a < 5 or b < 30 | True |
+| not | Logical NOT | not(a > 5) | False |
+
+---
+
+## Bitwise Operators
+Let:
+\`\`\`python
+a = 60  # 0011 1100
+b = 13  # 0000 1101
+\`\`\`
+
+| Operator | Name | Example | Result |
+|---|---|---:|---:|
+| & | AND | a & b | 12 |
+| \\| | OR | a \\| b | 61 |
+| ^ | XOR | a ^ b | 49 |
+| ~ | NOT | ~a | -61 |
+| << | Left Shift | a << 2 | 240 |
+| >> | Right Shift | a >> 2 | 15 |
+
+Examples:
+\`\`\`python
+print(a & b)   # 12
+print(a | b)   # 61
+print(a ^ b)   # 49
+print(~a)      # -61
+print(a << 2)  # 240
+print(a >> 2)  # 15
+\`\`\`
+
+---
+
+## Membership Operators
+
+| Operator | Description | Example | Result |
+|---|---|---:|---:|
+| in | True if present | 'a' in 'apple' | True |
+| not in | True if not present | 'x' not in 'apple' | True |
+
+---
+
+## Identity Operators
+Identity operators compare memory location of objects.
+
+| Operator | Description | Example | Result |
+|---|---|---:|---:|
+| is | Same object | a is b | False |
+| is not | Different object | a is not b | True |
+
+---
+
+## Operator Precedence (High → Low)
+1. \`**\`  
+2. \`+x, -x, ~x\`  
+3. \`*, /, //, %\`  
+4. \`+, -\`  
+5. \`<<, >>\`  
+6. \`&\`  
+7. \`^, |\`  
+8. \`<, <=, >, >=\`  
+9. \`==, !=\`  
+10. Assignments (\`=, +=, ...\`)  
+11. \`is, is not\`  
+12. \`in, not in\`  
+13. \`not, and, or\`
+
+> Tip: Use parentheses \`()\` to make precedence explicit.
 `,
     },
+
     {
       title: "Prisma + Postgres",
       content: `# Prisma + Postgres
@@ -389,7 +900,6 @@ Important:
 
   console.log("✅ Seed complete!");
   console.log("✅ Course ID:", course.id);
-  console.log("➡️ Open frontend at: /learn/courses/demo/topics");
 }
 
 main()
