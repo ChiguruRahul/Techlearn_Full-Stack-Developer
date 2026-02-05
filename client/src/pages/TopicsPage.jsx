@@ -230,10 +230,6 @@ export default function TopicsPage() {
           {!loading && activeTopic && (
             <>
               <div style={styles.topicHeader}>
-                <div>
-                  <div style={styles.topicKicker}>{activeTopic.title}</div>
-                  <h2 style={styles.h2}>{activeTopic.title}</h2>
-                </div>
 
                 <div style={styles.navBtns}>
                   <button onClick={goPrev} disabled={!canPrev} style={styles.navBtn}>
