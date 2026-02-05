@@ -224,9 +224,10 @@ const styles = {
 
   topicBtnActive: {
     background: "#eef5ff",
-    borderColor: "#cfe4ff",
-    color: "#111"
+    border: "1px solid #cfe4ff",
+    color: "#111",
   },
+
   topicOrder: { color: "#666", marginRight: 6,fontWeight:600 },
 
   main: {
