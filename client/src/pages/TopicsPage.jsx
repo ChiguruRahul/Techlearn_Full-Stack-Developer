@@ -126,13 +126,24 @@ export default function TopicsPage() {
   return (
     <div style={styles.page}>
       <header style={styles.header}>
-        <div>
-          <div style={styles.breadcrumb}>Learn / Courses / Topics</div>
-          <h1 style={styles.h1}>{courseTitle}</h1>
+        <div style={styles.headerLeft}>
+          <div style={styles.logoContainer}>
+            <div style={styles.logoCircle}>tls</div>
+          </div>
+          <div style={styles.xpPill}>
+            <span style={{opacity: 0.7}}>🏆</span> 0 XP <span style={{opacity: 0.6}}>Beginner</span> ⌄
+          </div>
+        </div>
+        <div style={styles.headerRight}>
+          <a href="#" style={{...styles.navLink, ...styles.navLinkActive}}>Learn</a>
+          <a href="#" style={styles.navLink}>Build</a>
+          <a href="#" style={styles.navLink}>Dashboard</a>
+          <a href="#" style={styles.navLink}>Hi, Chiguru</a>
+          <button style={styles.darkModeToggle}>☾</button>
         </div>
       </header>
 
-      {/* ✅ page stays fixed, only inner content scrolls */}
+      {/* body container matching reference with horizontal margin */}
       <div style={styles.body}>
         <div
           style={{
@@ -150,7 +161,7 @@ export default function TopicsPage() {
             <div style={styles.sidebarHeaderRow}>
               {!sidebarCollapsed && <div style={styles.sidebarTitle}>Course Topics</div>}
 
-              {/* ✅ collapse button (centered chevron) */}
+              {/* collapse button (chevron matching reference) */}
               <button
                 type="button"
                 aria-label="Collapse sidebar"
@@ -163,7 +174,7 @@ export default function TopicsPage() {
                   width="18"
                   height="18"
                   fill="none"
-                  stroke="currentColor"
+                  stroke="#1e3a8a" /* Dark blue stroke for contrast */
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -177,7 +188,7 @@ export default function TopicsPage() {
               </button>
             </div>
 
-            {/* ✅ sidebar list can scroll if topics are many */}
+            {/* sidebar list */}
             <div style={styles.sidebarList}>
               {topics.map((t) => {
                 const active = t.id === activeTopicId;
@@ -221,34 +232,26 @@ export default function TopicsPage() {
             </div>
           </aside>
 
-          {/* Main */}
+          {/* Main Content Area */}
           <main style={styles.main}>
-            {loading && <div>Loading...</div>}
+            {loading && <div style={{padding: 40}}>Loading...</div>}
 
             {!loading && activeTopic && (
-              <>
-                {/* optional: keep header visible while scrolling */}
-                <div style={styles.topicHeaderSticky}>
-                  <div style={styles.topicHeader}>
-                    <div>
-                      {/* ✅ match reference: small grey kicker */}
-                      <div style={styles.topicKicker}>Welcome &amp; Course Overview</div>
-                      <h2 style={styles.h2}>{activeTopic.title}</h2>
-                    </div>
-
-                    <div style={styles.navBtns}>
-                      <button onClick={goPrev} disabled={!canPrev} style={styles.navBtn}>
-                        ← Previous
-                      </button>
-                      <button onClick={goNext} disabled={!canNext} style={styles.navBtn}>
-                        Next →
-                      </button>
-                    </div>
+              <div id="topicScrollArea" style={styles.noteScroll}>
+                <div style={styles.topicHeader}>
+                  <h2 style={styles.h2}>{activeTopic.title}</h2>
+                  
+                  <div style={styles.navBtns}>
+                    <button onClick={goPrev} disabled={!canPrev} style={styles.navBtn}>
+                      ←
+                    </button>
+                    <button onClick={goNext} disabled={!canNext} style={styles.navBtn}>
+                      →
+                    </button>
                   </div>
                 </div>
 
-                {/* ✅ ONLY this scrolls */}
-                <div id="topicScrollArea" style={styles.noteScroll}>
+                <div style={styles.markdownContent}>
                   <ReactMarkdown
                     components={{
                       h1: (props) => <h1 style={styles.noteH1} {...props} />,
@@ -268,7 +271,7 @@ export default function TopicsPage() {
                     {activeTopic.note?.content || "No notes found."}
                   </ReactMarkdown>
                 </div>
-              </>
+              </div>
             )}
           </main>
         </div>
@@ -279,41 +282,113 @@ export default function TopicsPage() {
 
 const styles = {
   page: {
-    fontFamily: "system-ui, Arial",
+    fontFamily: '"Inter", "-apple-system", sans-serif',
     color: "#111",
     height: "100vh",
     overflow: "hidden",
-    background: "linear-gradient(180deg, #dff2ff 0%, #cfeeff 60%, #cfeeff 100%)",
+    background: "#e0f2fe", // Very light blue from reference
   },
 
   header: {
     background: "transparent",
-    borderBottom: "1px solid rgba(0,0,0,0.06)",
-    padding: "18px 22px",
+    padding: "16px 40px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     flex: "0 0 auto",
   },
-  breadcrumb: { fontSize: 13, color: "rgba(0,0,0,0.55)" },
-  h1: { margin: "6px 0 0", fontSize: 28, fontWeight: 800 },
+  
+  headerLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: 20,
+  },
+  
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+  },
+  
+  logoCircle: {
+    width: 44,
+    height: 44,
+    background: "none",
+    border: "2px dashed #0b1b4a",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "800",
+    color: "#0b1b4a",
+    fontSize: 16,
+    letterSpacing: "1px",
+  },
+
+  xpPill: {
+    background: "#f3e8ff", // Light purple
+    color: "#9333ea",
+    padding: "6px 14px",
+    borderRadius: 999,
+    fontSize: 13,
+    fontWeight: 600,
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+  
+  headerRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: 32,
+  },
+  
+  navLink: {
+    color: "#0f172a",
+    fontSize: 14,
+    fontWeight: 500,
+    textDecoration: "none",
+    borderBottom: "2px solid transparent",
+    paddingBottom: 4,
+  },
+  
+  navLinkActive: {
+    borderBottomColor: "#0f172a",
+  },
+  
+  darkModeToggle: {
+    background: "#0f172a",
+    color: "white",
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    border: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    fontSize: 16,
+    marginLeft: 10,
+  },
 
   body: {
-    height: "calc(100vh - 76px)", // header height approx
+    height: "calc(100vh - 80px)", // Header height approx
     overflow: "hidden",
   },
 
   layout: {
     display: "grid",
-    gap: 26,
-    padding: "18px 22px 32px",
+    gap: 32,
+    padding: "0px 40px 32px 40px",
     alignItems: "stretch",
     width: "100%",
     height: "100%",
-    transition: "grid-template-columns 520ms cubic-bezier(0.22, 1, 0.36, 1)",
+    transition: "grid-template-columns 400ms ease",
   },
 
   sidebar: {
     paddingTop: 8,
     height: "100%",
-    transition: "width 520ms cubic-bezier(0.22, 1, 0.36, 1)",
+    transition: "width 400ms ease",
   },
 
   sidebarHeaderRow: {
@@ -322,36 +397,34 @@ const styles = {
     justifyContent: "space-between",
     gap: 10,
     paddingLeft: 2,
-    marginBottom: 12,
+    marginBottom: 20,
   },
 
   sidebarTitle: {
-    fontSize: 26,
-    fontWeight: 800,
+    fontSize: 22,
+    fontWeight: 700,
     color: "#1e3a8a",
-    letterSpacing: "-0.02em",
     whiteSpace: "nowrap",
     overflow: "hidden",
-    textOverflow: "ellipsis",
   },
 
   collapseBtn: {
-    width: 44,
-    height: 34,
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(255,255,255,0.55)",
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    border: "none",
+    background: "transparent",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     lineHeight: 1,
     padding: 0,
-    transition: "transform 160ms ease, box-shadow 160ms ease, background 160ms ease",
+    color: "#1e3a8a",
   },
 
   sidebarList: {
-    height: "calc(100% - 56px)",
+    height: "calc(100% - 60px)",
     overflowY: "auto",
     paddingRight: 6,
   },
@@ -359,33 +432,34 @@ const styles = {
   topicBtn: {
     width: "100%",
     textAlign: "left",
-    padding: "14px 14px",
+    padding: "16px",
     borderRadius: 12,
     border: "1px solid transparent",
-    background: "rgba(255,255,255,0.35)",
+    background: "rgba(255,255,255,0.6)", // Mostly white
     cursor: "pointer",
-    marginBottom: 12,
-    color: "#0f172a",
-    fontSize: 16,
+    marginBottom: 10,
+    color: "#1e3a8a", // Blue text for all
+    fontSize: 15,
     display: "flex",
     alignItems: "center",
     gap: 12,
-    transition: "transform 180ms ease, box-shadow 180ms ease, background 180ms ease",
+    transition: "all 200ms ease",
   },
   topicBtnActive: {
-    background: "rgba(59,130,246,0.18)",
-    border: "1px solid rgba(59,130,246,0.35)",
+    background: "#bae6fd", // Deep sky blue matching reference active state
+    border: "1px solid #7dd3fc", // Stronger blue border
+    boxShadow: "0 4px 12px rgba(186, 230, 253, 0.4)",
   },
   topicBtnHover: {
-    transform: "translateY(-1px)",
-    boxShadow: "0 10px 24px rgba(2,6,23,0.10)",
-    background: "rgba(255,255,255,0.55)",
+    transform: "translateX(2px)",
+    background: "rgba(255,255,255,0.9)",
   },
 
   topicOrderPlain: {
-    minWidth: 22,
-    fontWeight: 800,
-    color: "#111827",
+    minWidth: 20,
+    fontWeight: 700,
+    color: "#0f172a",
+    fontSize: 13,
   },
   topicTitleText: {
     fontWeight: 600,
@@ -398,128 +472,109 @@ const styles = {
     width: 52,
     height: 52,
     borderRadius: 12,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(255,255,255,0.35)",
+    border: "1px solid transparent",
+    background: "rgba(255,255,255,0.6)",
     cursor: "pointer",
-    marginBottom: 12,
-    fontSize: 16,
-    fontWeight: 800,
-    color: "#111827",
+    marginBottom: 10,
+    fontSize: 15,
+    fontWeight: 700,
+    color: "#0f172a",
     display: "grid",
     placeItems: "center",
-    transition: "transform 180ms ease, box-shadow 180ms ease, background 180ms ease",
+    transition: "all 200ms ease",
   },
   topicMiniBtnActive: {
-    background: "rgba(59,130,246,0.18)",
-    border: "1px solid rgba(59,130,246,0.35)",
+    background: "#bae6fd",
+    border: "1px solid #7dd3fc",
   },
   topicMiniBtnHover: {
-    transform: "translateY(-1px)",
-    boxShadow: "0 10px 24px rgba(2,6,23,0.10)",
-    background: "rgba(255,255,255,0.55)",
+    transform: "translateX(2px)",
+    background: "rgba(255,255,255,0.9)",
   },
 
   main: {
-    background: "rgba(255,255,255,0.55)",
-    border: "1px solid rgba(255,255,255,0.45)",
-    borderRadius: 18,
+    background: "#ffffff", // Pure white for the content card
+    borderRadius: 20,
     padding: 0,
     height: "100%",
     width: "100%",
-    boxShadow: "0 14px 40px rgba(2, 6, 23, 0.08)",
-    backdropFilter: "blur(12px)",
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.04)", // Very soft shadow
     overflow: "hidden",
   },
 
-  topicHeaderSticky: {
-    position: "sticky",
-    top: 0,
-    zIndex: 2,
-    background: "rgba(255,255,255,0.55)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(0,0,0,0.06)",
-    padding: 22,
+  noteScroll: {
+    padding: "50px 60px",
+    height: "100%",
+    overflowY: "auto",
   },
 
   topicHeader: {
-    display: "grid",
-    gridTemplateColumns: "1fr auto",
-    alignItems: "start",
-    gap: 12,
-  },
-
-  topicKicker: {
-    fontSize: 14,
-    fontWeight: 700,
-    color: "rgba(2,6,23,0.55)",
-    marginBottom: 6,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 30,
   },
 
   h2: {
     margin: 0,
-    fontSize: 56, // closer to reference
-    lineHeight: 1.05,
-    letterSpacing: "-0.03em",
-    fontWeight: 900,
-    color: "#0b1b4a",
+    fontSize: 64, // Very large blue text from reference
+    lineHeight: 1.1,
+    letterSpacing: "-0.02em",
+    fontWeight: 800,
+    color: "#1d4ed8", // Bright strong blue (#1d4ed8)
   },
 
   navBtns: {
     display: "flex",
-    gap: 10,
-    justifyContent: "flex-end",
-    alignItems: "center",
-    whiteSpace: "nowrap",
+    gap: 8,
   },
 
   navBtn: {
-    padding: "10px 14px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(255,255,255,0.65)",
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    border: "1px solid #e2e8f0",
+    background: "#f8fafc",
     cursor: "pointer",
-    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#64748b",
   },
 
-  noteScroll: {
-    padding: "18px 22px 26px",
-    height: "calc(100% - 130px)", // subtract sticky header space
-    overflowY: "auto",
-    lineHeight: 1.7,
-    color: "rgba(2,6,23,0.78)",
+  markdownContent: {
+    color: "#475569", // Dark slate grey for content
+    fontSize: 17,
+    lineHeight: 1.8,
   },
 
-  noteH1: { margin: "16px 0 10px", fontSize: 28 },
-  noteH2: { margin: "18px 0 10px", fontSize: 22, color: "#1e3a8a" },
-  noteH3: { margin: "16px 0 8px", fontSize: 18, color: "#1e3a8a" },
-  noteP: { margin: "10px 0" },
-  noteLi: { margin: "8px 0" },
+  noteH1: { margin: "32px 0 16px", fontSize: 32, color: "#1e3a8a" },
+  noteH2: { margin: "28px 0 14px", fontSize: 24, color: "#3b82f6", fontWeight: 700 }, // Light blue subheads
+  noteH3: { margin: "24px 0 12px", fontSize: 20, color: "#3b82f6", fontWeight: 600 },
+  noteP: { margin: "16px 0" },
+  noteLi: { margin: "10px 0" },
 
   pre: {
-    margin: "14px 0",
-    padding: 0,
+    margin: "20px 0",
+    padding: "20px",
     overflowX: "auto",
     borderRadius: 12,
+    background: "#0f172a", // Dark background for code
   },
   codeBlock: {
     display: "block",
-    padding: "16px 18px",
-    borderRadius: 12,
-    background: "#0b1220",
-    color: "rgba(255,255,255,0.92)",
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-    fontSize: 14,
+    color: "#f8fafc",
+    fontFamily: '"Fira Code", "Menlo", monospace',
+    fontSize: 15,
     lineHeight: 1.6,
-    boxShadow: "0 10px 24px rgba(2,6,23,0.18)",
-    border: "1px solid rgba(255,255,255,0.08)",
   },
   inlineCode: {
-    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-    fontSize: "0.95em",
-    padding: "2px 6px",
-    borderRadius: 8,
-    background: "rgba(15,23,42,0.08)",
-    border: "1px solid rgba(15,23,42,0.10)",
+    fontFamily: '"Fira Code", "Menlo", monospace',
+    fontSize: "0.9em",
+    padding: "3px 6px",
+    borderRadius: 6,
+    background: "#f1f5f9",
+    color: "#ef4444",
   },
 };
 
